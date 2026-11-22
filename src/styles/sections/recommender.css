@@ -1,0 +1,325 @@
+/* Recomendador de misiones + resaltado del plan recomendado */
+
+.recommender {
+  margin-bottom: var(--space-7);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-strong);
+}
+
+.no-js .recommender {
+  display: none;
+}
+
+.recommender__intro {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+}
+
+.recommender__kicker,
+.rec-step__progress,
+.rec-result__why-title {
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.recommender__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+}
+
+/* --- Paso --- */
+.rec-step {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.rec-step__bar {
+  height: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--white-12);
+  overflow: hidden;
+}
+
+.rec-step__bar span {
+  display: block;
+  height: 100%;
+  background: var(--soft-violet);
+  transform: scaleX(var(--rec-progress));
+  transform-origin: left center;
+}
+
+.rec-step__fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.rec-step__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  color: var(--text);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+/* Pasos numerados: cuadros Evox Purple con número blanco (manual) */
+.step-num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--icon-box);
+  height: var(--icon-box);
+  border-radius: var(--radius-md);
+  background: var(--evox-purple);
+  color: var(--white);
+  font-weight: var(--fw-extrabold);
+}
+
+.rec-step__note {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.rec-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rec-option {
+  position: relative;
+}
+
+.rec-option__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.rec-option__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: var(--border-w) solid var(--border-strong);
+  color: var(--text);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.rec-option__label::before {
+  content: '';
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: 50%;
+  border: var(--focus-w) solid var(--muted-gray);
+}
+
+.rec-option__input:hover + .rec-option__label {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet-10);
+}
+
+.rec-option__input:checked + .rec-option__label {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet-16);
+}
+
+.rec-option__input:checked + .rec-option__label::before {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet);
+  box-shadow: inset 0 0 0 var(--focus-w) var(--black);
+}
+
+.rec-option__input:focus-visible + .rec-option__label {
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
+
+.rec-step__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary:disabled:hover {
+  background: var(--cta-bg);
+}
+
+/* --- Resultado --- */
+.rec-result {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+}
+
+.rec-result__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+}
+
+.rec-result__name:focus-visible {
+  outline-offset: var(--space-2);
+}
+
+.rec-result__duration {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--soft-violet);
+  color: var(--black);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-transform: none;
+}
+
+.rec-result__summary {
+  color: var(--text);
+  font-size: var(--fs-md);
+}
+
+.rec-result__reasons {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rec-result__reasons li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+}
+
+.rec-result__reasons .icon {
+  margin-top: var(--space-1);
+  color: var(--accent);
+}
+
+.rec-result__alt {
+  color: var(--text-muted);
+}
+
+.rec-result__alt a {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.rec-result__actions,
+.rec-result__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+}
+
+/* --- Comparación --- */
+.rec-compare {
+  width: 100%;
+}
+
+.rec-compare__scroll {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: var(--border-w) solid var(--border);
+}
+
+.rec-compare__table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.rec-compare__table th,
+.rec-compare__table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: var(--border-w) solid var(--border);
+}
+
+.rec-compare__table thead th {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.rec-compare__table tbody th {
+  color: var(--text);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.rec-compare__table .is-recommended {
+  background: var(--soft-violet-16);
+}
+
+.rec-compare__tag {
+  display: block;
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+}
+
+/* --- Tarjeta recomendada en la sección de planes --- */
+.plan__badge {
+  display: none;
+  justify-self: start;
+  margin-bottom: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--soft-violet);
+  color: var(--black);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.plan[data-recommended] {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet-16);
+  box-shadow: 0 0 0 var(--focus-w) var(--soft-violet);
+}
+
+.plan[data-recommended] .plan__badge {
+  display: inline-flex;
+}
+
+.plan:focus-visible {
+  outline-offset: var(--space-1);
+}
+
+@media (min-width: 48rem) {
+  .recommender {
+    padding: var(--space-7);
+  }
+
+  .rec-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
