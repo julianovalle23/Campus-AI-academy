@@ -5,7 +5,7 @@
   display: grid;
   align-items: center;
   min-height: 100svh;
-  padding-top: calc(var(--header-h) + var(--space-7));
+  padding-top: calc(var(--header-total) + var(--space-6));
   padding-bottom: var(--space-8);
 }
 
@@ -124,4 +124,49 @@
   .hero__actions .btn {
     flex: 1 1 100%;
   }
+}
+
+/* --- Fase 3: campo de estrellas y entrada --- */
+.hero__sky {
+  overflow: hidden;
+}
+
+.hero__stars {
+  position: absolute;
+  top: calc(-1 * var(--hero-bleed));
+  left: calc(-1 * var(--hero-bleed));
+  opacity: 0;
+}
+
+/* Antes de que corra el timeline de entrada, los elementos secundarios esperan
+   ocultos. El titular no (es el LCP). Respaldo: si el JS falla, aparecen solos. */
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero [data-hero-in] {
+    opacity: 0;
+    animation: hero-fallback 1ms 2.5s forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__stars {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+.profile-picker__status {
+  margin-top: var(--space-3);
+  min-height: calc(2 * var(--lh-body) * 1em); /* reserva el espacio: el texto cambia sin mover el layout */
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.profile-picker__status a {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
 }

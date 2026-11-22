@@ -171,3 +171,26 @@
   color: var(--text-muted);
   font-size: var(--fs-sm);
 }
+
+/* Caso destacado por el perfil elegido en el hero */
+.case__match {
+  display: none;
+  justify-self: start;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--soft-violet);
+  color: var(--black);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.case[data-match] {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet-06);
+}
+
+.case[data-match] .case__match {
+  display: inline-flex;
+}
