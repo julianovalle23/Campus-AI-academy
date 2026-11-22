@@ -1,0 +1,149 @@
+/* FAQs, CTA final y footer */
+
+/* --- FAQs (acordeón nativo <details>) --- */
+.faq-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.faq {
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border);
+}
+
+.faq[open] {
+  border-color: var(--border-strong);
+}
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--tap);
+  padding: var(--space-4) var(--space-5);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.faq__icon {
+  flex: none;
+  color: var(--accent);
+}
+
+.faq[open] .faq__icon {
+  transform: rotate(45deg);
+}
+
+.faq__a {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/* --- Bloque de CTA final: Evox Purple, esquinas grandes (manual) --- */
+.section--final {
+  padding-top: 0;
+}
+
+.final-cta {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  padding: var(--space-7) var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--evox-purple);
+  color: var(--white);
+}
+
+.final-cta__title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-title);
+}
+
+.final-cta__text {
+  max-width: 36rem;
+  font-size: var(--fs-lg);
+}
+
+.final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.final-cta :focus-visible {
+  outline-color: var(--white);
+}
+
+@media (min-width: 48rem) {
+  .final-cta {
+    padding: var(--space-8);
+  }
+}
+
+/* --- Footer --- */
+.site-footer {
+  padding-top: var(--space-8);
+  border-top: var(--border-w) solid var(--white-06);
+}
+
+.site-footer__inner {
+  display: grid;
+  gap: var(--space-7);
+}
+
+/* Zona de protección del logo vertical: x ≈ 20 px a 140 px de ancho */
+.site-footer__brand picture {
+  margin: var(--space-5) 0 var(--space-5);
+}
+
+.site-footer__tagline {
+  max-width: 22rem;
+  color: var(--text-muted);
+}
+
+.site-footer__title {
+  margin-bottom: var(--space-3);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.site-footer__list .nav__link {
+  font-size: var(--fs-sm);
+}
+
+.site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-7);
+  padding-block: var(--space-5);
+  border-top: var(--border-w) solid var(--white-06);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.site-footer__legal-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+}
+
+@media (min-width: 48rem) {
+  .site-footer__inner {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}

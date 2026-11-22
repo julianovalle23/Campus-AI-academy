@@ -1,0 +1,154 @@
+/* Menú fijo */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-header);
+  background: var(--black-90);
+  border-bottom: var(--border-w) solid var(--white-06);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--header-h);
+}
+
+/* Zona de protección del logo: x ≈ altura de ACADEMY (~12 px a 160 px de ancho) */
+.site-header__brand {
+  flex: none;
+  padding: var(--space-3) 0;
+  margin: calc(-1 * var(--space-3)) 0;
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  color: var(--text-body);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+}
+
+.nav__link:hover,
+.nav__link[aria-current='true'] {
+  color: var(--white);
+}
+
+/* --- Móvil: botón + panel --- */
+.nav-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+}
+
+.nav-toggle__close,
+.nav-toggle[aria-expanded='true'] .nav-toggle__open {
+  display: none;
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle__close {
+  display: block;
+}
+
+.nav {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  display: none;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--gutter) var(--space-7);
+  background: var(--black);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.nav[data-open] {
+  display: flex;
+}
+
+.nav__list {
+  display: grid;
+}
+
+.nav__list .nav__link {
+  width: 100%;
+  padding-block: var(--space-3);
+  font-size: var(--fs-lg);
+  border-bottom: var(--border-w) solid var(--white-06);
+}
+
+.nav__cta {
+  align-self: stretch;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--fs-base);
+}
+
+body[data-nav-open] {
+  overflow: hidden;
+}
+
+/* Sin JS el menú se muestra como lista normal */
+.no-js .nav-toggle {
+  display: none;
+}
+
+.no-js .site-header {
+  position: static;
+}
+
+.no-js .site-header__inner {
+  height: auto;
+  flex-wrap: wrap;
+  padding-block: var(--space-3);
+}
+
+.no-js .nav {
+  position: static;
+  display: flex;
+  padding: 0;
+  background: none;
+}
+
+/* --- Escritorio --- */
+@media (min-width: 72rem) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav,
+  .no-js .nav {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-5);
+    padding: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .nav__list {
+    display: flex;
+    gap: var(--space-5);
+  }
+
+  .nav__list .nav__link {
+    width: auto;
+    padding-block: 0;
+    font-size: var(--fs-sm);
+    border-bottom: 0;
+  }
+
+  .nav__cta {
+    align-self: center;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--fs-sm);
+  }
+}

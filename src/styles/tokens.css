@@ -1,0 +1,149 @@
+/* =========================================================
+   Tokens de diseño — Manual de marca AI Academy v1.0
+   Solo la paleta oficial (págs. 9–10) y sus transparencias.
+   ========================================================= */
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/poppins-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/poppins-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/poppins-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/poppins-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/poppins-latin-800-normal.woff2') format('woff2');
+}
+
+:root {
+  /* --- Paleta oficial --- */
+  --black: #050507;
+  --evox-purple: #7026e8;
+  --electric-violet: #9636ff;
+  --soft-violet: #b783ff;
+  --white: #ffffff;
+  --muted-gray: #8e8998;
+
+  /* --- Transparencias de la paleta (únicos derivados permitidos) --- */
+  --black-90: rgb(5 5 7 / 0.9);
+  --black-70: rgb(5 5 7 / 0.7);
+  --white-86: rgb(255 255 255 / 0.86);
+  --white-12: rgb(255 255 255 / 0.12);
+  --white-06: rgb(255 255 255 / 0.06);
+  --soft-violet-24: rgb(183 131 255 / 0.24);
+  --soft-violet-16: rgb(183 131 255 / 0.16);
+  --soft-violet-10: rgb(183 131 255 / 0.1);
+  --soft-violet-06: rgb(183 131 255 / 0.06);
+  --electric-violet-40: rgb(150 54 255 / 0.4);
+  --electric-violet-0: rgb(150 54 255 / 0);
+  --evox-purple-40: rgb(112 38 232 / 0.4);
+  --evox-purple-0: rgb(112 38 232 / 0);
+
+  /* --- Roles de color --- */
+  --bg: var(--black);
+  --text: var(--white); /* titulares: 20,4:1 */
+  --text-body: var(--white-86); /* texto largo sobre negro */
+  --text-muted: var(--muted-gray); /* secundario: 6,0:1 sobre Black */
+  --accent: var(--soft-violet); /* palabra destacada: 7,5:1 */
+  --cta-bg: var(--evox-purple); /* White sobre Evox Purple: 6,7:1 */
+  --cta-bg-hover: var(--electric-violet); /* White sobre Electric Violet: 4,9:1 */
+  --surface: var(--soft-violet-10); /* tarjetas: Soft Violet al 10 % (manual) */
+  --surface-raised: var(--soft-violet-16);
+  --border: var(--soft-violet-16);
+  --border-strong: var(--soft-violet-24);
+  --focus: var(--soft-violet);
+
+  /* --- Tipografía --- */
+  --font: 'Poppins', system-ui, sans-serif;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --fs-xs: 0.75rem; /* 12 — solo etiquetas en mayúsculas */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-base: 1rem; /* 16 */
+  --fs-md: 1.125rem; /* 18 */
+  --fs-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  --fs-2xl: clamp(1.875rem, 1.35rem + 2.4vw, 3rem);
+  --fs-hero: clamp(2.375rem, 1.45rem + 4.6vw, 4.75rem);
+
+  --lh-tight: 1.06; /* titulares (manual: 1,06) */
+  --lh-snug: 1.25;
+  --lh-body: 1.6;
+  --tracking-label: 0.16em; /* etiquetas en píldora (manual) */
+  --tracking-title: -0.02em;
+
+  /* --- Espaciado --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --section-gap: clamp(var(--space-8), 6vw + 1rem, 8rem);
+
+  /* --- Layout --- */
+  --container: 75rem; /* 1200 */
+  --container-wide: 82.5rem; /* 1320 */
+  --container-narrow: 48rem;
+  --gutter: clamp(1rem, 4vw, 2rem); /* 16 px a 375 */
+  --header-h: 4rem;
+
+  /* --- Formas --- */
+  --radius-sm: 0.625rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem; /* tarjetas */
+  --radius-xl: 2rem; /* bloque de CTA */
+  --radius-pill: 999px;
+  --border-w: 1px;
+  --focus-w: 2px;
+  --focus-offset: 3px;
+  --icon-box: 3rem;
+  --avatar: 2.75rem;
+  --tap: 2.75rem; /* objetivo táctil mínimo 44 px */
+
+  /* --- Halos (manual pág. 13) --- */
+  --halo-size: clamp(18rem, 40vw, 36rem);
+
+  /* --- Capas --- */
+  --z-base: 1;
+  --z-sticky: 50;
+  --z-header: 100;
+  --z-overlay: 200;
+
+  /* --- Movimiento --- */
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 450ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

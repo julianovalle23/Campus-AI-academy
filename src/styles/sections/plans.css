@@ -1,0 +1,126 @@
+/* Planes: las cinco misiones */
+
+.section--plans .container {
+  width: min(100% - 2 * var(--gutter), var(--container-wide));
+}
+
+/* Móvil: carrusel con scroll-snap (la siguiente tarjeta asoma) */
+.plan-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(85%, 20rem);
+  gap: var(--space-4);
+  margin-inline: calc(-1 * var(--gutter));
+  padding: var(--space-2) var(--gutter) var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  overscroll-behavior-x: contain;
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border);
+  scroll-snap-align: start;
+}
+
+.plan__kicker {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.plan__name {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-title);
+  text-transform: uppercase;
+}
+
+.plan__duration {
+  display: inline-flex;
+  margin-top: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--soft-violet);
+  color: var(--black);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.plan__summary {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+}
+
+.plan__includes-title {
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.plan__includes {
+  display: grid;
+  gap: var(--space-3);
+  font-size: var(--fs-sm);
+}
+
+.plan__includes li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+}
+
+.plan__includes .icon {
+  margin-top: var(--space-1);
+  color: var(--accent);
+}
+
+.plan__cta {
+  margin-top: auto;
+  width: 100%;
+}
+
+.plans-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-2);
+  margin-top: var(--space-5);
+  color: var(--text-muted);
+}
+
+@media (min-width: 48rem) {
+  .plan-list {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, 1fr);
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 64rem) {
+  .plan-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 80rem) {
+  .plan-list {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .plan {
+    padding: var(--space-5) var(--space-4);
+  }
+}

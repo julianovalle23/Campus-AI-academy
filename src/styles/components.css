@@ -1,0 +1,201 @@
+/* Componentes reutilizables: píldora, botones, tarjetas, encabezados, halos */
+
+/* Etiqueta en píldora: Soft Violet + texto Black en mayúsculas (manual pág. 13) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--soft-violet);
+  color: var(--black);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: var(--lh-body);
+}
+
+/* --- Botones --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  border: var(--border-w) solid transparent;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn .icon {
+  flex: none;
+}
+
+.btn--sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+}
+
+.btn--lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--fs-md);
+}
+
+/* CTA principal: White sobre Evox Purple (6,7:1) */
+.btn--primary {
+  background: var(--cta-bg);
+  color: var(--white);
+}
+
+.btn--primary:hover {
+  background: var(--cta-bg-hover);
+}
+
+/* Secundario: contorno sobre negro */
+.btn--ghost {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  background: var(--soft-violet-10);
+  border-color: var(--soft-violet);
+}
+
+/* Sobre bloque Evox Purple */
+.btn--light {
+  background: var(--white);
+  color: var(--black);
+}
+
+.btn--light:hover {
+  background: var(--soft-violet);
+}
+
+.btn--ghost-light {
+  border-color: var(--white);
+  color: var(--white);
+}
+
+.btn--ghost-light:hover {
+  background: var(--white-12);
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+  text-decoration: underline;
+}
+
+.text-link:hover {
+  color: var(--white);
+}
+
+/* --- Tarjetas: Soft Violet al 10 % (manual) --- */
+.card {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border);
+}
+
+.card__title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--space-2);
+}
+
+.card__text {
+  color: var(--text-body);
+}
+
+/* --- Grillas --- */
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 48rem) {
+  .grid--2,
+  .grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 75rem) {
+  .grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- Secciones --- */
+.section {
+  position: relative;
+  padding-block: var(--section-gap);
+}
+
+.section-head {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  max-width: 46rem;
+  margin-bottom: var(--space-7);
+}
+
+.section-title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-title);
+}
+
+.section-lead {
+  font-size: var(--fs-lg);
+  color: var(--text-body);
+}
+
+.section-note {
+  margin-top: var(--space-5);
+}
+
+/* --- Halos de luz (manual pág. 13): Electric Violet arriba a la derecha,
+   Evox Purple abajo a la izquierda, en las esquinas y nunca detrás del texto. --- */
+.has-halos {
+  isolation: isolate;
+  overflow: clip;
+}
+
+.has-halos::before,
+.has-halos::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: var(--halo-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.has-halos::before {
+  top: 0;
+  right: 0;
+  transform: translate(45%, -45%);
+  background: radial-gradient(closest-side, var(--electric-violet-40), var(--electric-violet-0));
+}
+
+.has-halos::after {
+  bottom: 0;
+  left: 0;
+  transform: translate(-45%, 45%);
+  background: radial-gradient(closest-side, var(--evox-purple-40), var(--evox-purple-0));
+}
