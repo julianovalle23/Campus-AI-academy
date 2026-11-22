@@ -10,6 +10,7 @@ import { tools, toolGroups } from '../data/tools.js';
 import { cases } from '../data/cases.js';
 import { faqs } from '../data/faqs.js';
 import { canvas, positions, edges } from '../data/constellation.js';
+import { max } from '../data/max.js';
 
 /* ---------- Piezas reutilizables ---------- */
 
@@ -41,6 +42,20 @@ const logo = ({ variant, widths, display, alt = brand.name, cls = '', eager = fa
     <source type="image/webp" srcset="${srcset('webp')}" sizes="${display}px">
     <img src="/logo/${name}-${widths[0]}.png" srcset="${srcset('png')}" sizes="${display}px"
       width="${display}" height="${h}" alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
+  </picture>`;
+};
+
+/**
+ * Max en una pose aprobada (src/data/max.js). AVIF con respaldo WebP;
+ * width/height reservan el espacio (CLS 0) y la carga es diferida.
+ */
+const maxPicture = (pose, { sizes, cls = '', hidden = false, decorative = false }) => {
+  const m = max[pose];
+  const srcset = (ext) => m.widths.map((w) => `/max/max-${pose}-${w}.${ext} ${w}w`).join(', ');
+  return `<picture class="max ${cls}" data-max="${pose}"${hidden ? ' hidden' : ''}>
+    <source type="image/avif" srcset="${srcset('avif')}" sizes="${sizes}">
+    <img class="max__img" src="/max/max-${pose}-${m.widths[1]}.webp" srcset="${srcset('webp')}" sizes="${sizes}"
+      width="${m.width}" height="${m.height}" alt="${decorative ? '' : esc(m.alt)}" loading="lazy" decoding="async">
   </picture>`;
 };
 
@@ -321,7 +336,11 @@ export const plansSection = () => `
       lead: 'Elige el plan que mejor impulse tu misión hacia la inteligencia artificial.',
       id: 'planes-title',
     })}
-    <section class="recommender" id="recomendador" aria-labelledby="rec-title" data-recommender>
+    <section class="recommender" id="recomendador" aria-labelledby="rec-title" data-recommender data-rec-state="intro">
+      <div class="recommender__guide">
+        ${maxPicture('presentando', { sizes: '(min-width: 48rem) 11rem, 5.5rem', cls: 'max--rec' })}
+        ${maxPicture('aprobando', { sizes: '(min-width: 48rem) 9rem, 5rem', cls: 'max--rec', hidden: true })}
+      </div>
       <div class="recommender__intro" data-rec-intro>
         <p class="recommender__kicker">Recomendador de misiones</p>
         <h3 class="recommender__title" id="rec-title">¿No sabes cuál elegir? Encuentra tu misión en <span class="highlight">3 preguntas</span>.</h3>
@@ -376,12 +395,13 @@ export const reviewsSection = () => `
 
 export const faqsSection = () => `
 <section class="section section--faqs" id="faqs" data-stage="aterrizaje" aria-labelledby="faqs-title">
-  <div class="container container--narrow">
+  <div class="container">
     ${sectionHead({
       tag: 'Preguntas frecuentes',
       title: { before: 'Resolvemos tus dudas sobre ', highlight: 'AI Academy', after: '' },
       id: 'faqs-title',
     })}
+    <div class="faq-layout">
     <div class="faq-list" data-faq>
       ${join(
         faqs.map(
@@ -395,6 +415,15 @@ export const faqsSection = () => `
         </details>`,
         ),
       )}
+    </div>
+    <aside class="faq-guide" aria-labelledby="faq-guide-title">
+      ${maxPicture('explicando', { sizes: '(min-width: 64rem) 10rem, 5.5rem', cls: 'max--faq' })}
+      <div class="faq-guide__bubble">
+        <p class="faq-guide__title" id="faq-guide-title">¿Tu duda no está aquí?</p>
+        <p class="faq-guide__text">Habla con un especialista por WhatsApp.</p>
+        ${whatsappLink('Escríbenos por WhatsApp', 'text-link')}
+      </div>
+    </aside>
     </div>
   </div>
 </section>

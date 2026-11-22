@@ -3,6 +3,9 @@
 .journey {
   border-top: var(--border-w) solid var(--white-06);
   --journey: 0;
+  /* La «nave» se desplaza con translateX de su propia caja: sin este recorte,
+     al final del recorrido la caja sobresale y genera scroll horizontal en móvil. */
+  overflow-x: clip;
 }
 
 .journey__inner {

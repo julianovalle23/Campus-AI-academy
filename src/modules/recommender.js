@@ -20,6 +20,19 @@ export function init(root = document.querySelector('[data-recommender]')) {
   const intro = root.querySelector('[data-rec-intro]');
   const body = root.querySelector('[data-rec-body]');
   const answers = {};
+  // Max guía el recomendador: «Presentando» al invitar y «Aprobando» en el resultado.
+  const maxPresenting = root.querySelector('[data-max="presentando"]');
+  const maxApproving = root.querySelector('[data-max="aprobando"]');
+  const setState = (state) => {
+    root.dataset.recState = state;
+    if (!maxPresenting || !maxApproving) return;
+    const approve = state === 'result';
+    maxPresenting.hidden = approve;
+    maxApproving.hidden = !approve;
+    if (approve && !prefersReducedMotion()) {
+      animate(maxApproving, { opacity: [0, 1], scale: [0.9, 1], duration: DUR.slow, ease: EASE });
+    }
+  };
   let step = 0;
   let prefilled = false;
 
@@ -41,6 +54,7 @@ export function init(root = document.querySelector('[data-recommender]')) {
     intro.hidden = true;
     body.hidden = false;
     store.set('recommenderActive', true);
+    setState('steps');
     goTo(0);
   });
 
@@ -149,6 +163,7 @@ export function init(root = document.querySelector('[data-recommender]')) {
             <button class="text-link" type="button" data-rec-restart>Volver a empezar</button>
           </div>
         </div>`;
+      setState('result');
       wireResult();
       body.querySelector('[data-rec-heading]').focus();
       if (!prefersReducedMotion()) {
@@ -208,6 +223,7 @@ export function init(root = document.querySelector('[data-recommender]')) {
       prefilled = false;
       prefillFromProfile(store.get('profile'));
       store.set('recommenderActive', true);
+      setState('steps');
       goTo(0);
     });
   }

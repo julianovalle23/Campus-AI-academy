@@ -13,6 +13,7 @@ import './styles/sections/content.css';
 import './styles/sections/constellation.css';
 import './styles/sections/plans.css';
 import './styles/sections/recommender.css';
+import './styles/sections/max.css';
 import './styles/sections/closing.css';
 
 import { initNav } from './modules/nav.js';

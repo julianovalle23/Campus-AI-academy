@@ -1,0 +1,160 @@
+/* Max, el astronauta de la marca (manual cap. 07).
+   Sobre negro con halo violeta; nunca encima de texto ni de llamadas a la acción:
+   siempre ocupa su propia columna o fila en la grilla. */
+
+.max {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  pointer-events: none; /* no intercepta clics: solo acompaña */
+}
+
+.max[hidden] {
+  display: none;
+}
+
+/* Halo violeta detrás de Max (Electric Violet → transparente) */
+.max::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 8% -18% 4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--electric-violet-40), var(--electric-violet-0));
+}
+
+.max__img {
+  width: 100%;
+  height: auto;
+}
+
+/* Flotación suave en gravedad cero: solo transform y solo si se permite movimiento */
+@media (prefers-reduced-motion: no-preference) {
+  .max__img {
+    animation: max-float 5s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes max-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+/* --- Guía del recomendador --- */
+.recommender {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  grid-template-areas: 'guide content';
+  column-gap: var(--space-4);
+  align-items: start;
+}
+
+.recommender__guide {
+  grid-area: guide;
+  align-self: center;
+}
+
+.recommender__intro,
+.recommender__body {
+  grid-area: content;
+  min-width: 0;
+}
+
+.max--rec {
+  width: 100%;
+  max-width: 11rem;
+  margin-inline: auto;
+}
+
+/* En móvil las preguntas usan todo el ancho: Max vuelve en el resultado */
+@media (max-width: 47.99rem) {
+  .recommender[data-rec-state='steps'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'content';
+  }
+
+  .recommender[data-rec-state='steps'] .recommender__guide {
+    display: none;
+  }
+
+  .recommender[data-rec-state='result'] .recommender__guide {
+    align-self: start;
+  }
+}
+
+@media (min-width: 48rem) {
+  .recommender {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    column-gap: var(--space-6);
+  }
+
+  .recommender__guide {
+    position: sticky;
+    top: calc(var(--header-total) + var(--space-5));
+  }
+}
+
+/* --- Guía de las preguntas frecuentes --- */
+.faq-layout {
+  display: grid;
+  gap: var(--space-6);
+  max-width: var(--container-narrow);
+}
+
+.faq-guide {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.faq-guide__bubble {
+  position: relative;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-strong);
+}
+
+.faq-guide__title {
+  font-weight: var(--fw-bold);
+}
+
+.faq-guide__text {
+  color: var(--text-body);
+}
+
+@media (min-width: 64rem) {
+  .faq-layout {
+    max-width: calc(var(--container-narrow) + 18rem + var(--space-8));
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    grid-template-areas: 'list guide';
+    align-items: start;
+    gap: var(--space-8);
+  }
+
+  .faq-list {
+    grid-area: list;
+  }
+
+  .faq-guide {
+    grid-area: guide;
+    position: sticky;
+    top: calc(var(--header-total) + var(--space-5));
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .faq-guide .max--faq {
+    width: 10rem;
+  }
+
+  .faq-guide__bubble .text-link {
+    justify-content: center;
+  }
+}
