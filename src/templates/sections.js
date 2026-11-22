@@ -3,12 +3,13 @@
 
 import { esc, join, highlightTitle, externalAttrs, newTabHint, todo } from './html.js';
 import { icons } from './icons.js';
-import { brand, links, nav } from '../data/site.js';
+import { brand, links, nav, stages } from '../data/site.js';
 import { hero, urgency, benefits, reviews } from '../data/content.js';
 import { plans } from '../data/plans.js';
 import { tools, toolGroups } from '../data/tools.js';
 import { cases } from '../data/cases.js';
 import { faqs } from '../data/faqs.js';
+import { canvas, positions, edges } from '../data/constellation.js';
 
 /* ---------- Piezas reutilizables ---------- */
 
@@ -69,17 +70,44 @@ export const header = () => `
       ${enrollLink('Inscríbete', 'btn btn--primary btn--sm nav__cta')}
     </nav>
   </div>
+  ${journey()}
 </header>`;
+
+/* Indicador del viaje: trayectoria fija con un punto que avanza con el scroll.
+   Son enlaces reales (funcionan sin JS y con teclado); journey.js añade el
+   progreso, la etapa actual (aria-current) y las revelaciones. */
+const journey = () => `
+  <nav class="journey" aria-label="Etapas del viaje" data-journey>
+    <div class="container journey__inner">
+      <div class="journey__track" aria-hidden="true">
+        <span class="journey__fill" data-journey-fill></span>
+        <span class="journey__ship" data-journey-ship><span class="journey__dot"></span></span>
+      </div>
+      <ol class="journey__stages" role="list">
+        ${join(
+          stages.map(
+            (s, i) => `
+          <li>
+            <a class="journey__stage" href="#${esc(s.target)}" data-journey-stage="${esc(s.id)}"${i === 0 ? ' aria-current="step"' : ''}>
+              <span class="journey__node" aria-hidden="true"></span>
+              <span class="journey__label"><span class="visually-hidden">Etapa ${i + 1} de ${stages.length}: </span>${esc(s.label)}</span>
+            </a>
+          </li>`,
+          ),
+        )}
+      </ol>
+    </div>
+  </nav>`;
 
 export const heroSection = () => `
 <section class="hero has-halos" id="inicio" data-stage="despegue" aria-labelledby="hero-title">
   <div class="hero__sky" aria-hidden="true" data-hero-sky></div>
   <div class="container hero__inner">
-    ${pill('Campuslands AI Academy')}
+    <p class="pill" data-hero-in>Campuslands AI Academy</p>
     <h1 id="hero-title" class="hero__title">${highlightTitle(hero.title)}</h1>
-    <p class="hero__subtitle" id="hero-subtitle" data-hero-subtitle data-default="${esc(hero.subtitle)}">${esc(hero.subtitle)}</p>
+    <p class="hero__subtitle" id="hero-subtitle" data-hero-subtitle data-hero-in aria-live="polite">${esc(hero.subtitle)}</p>
 
-    <fieldset class="profile-picker" data-profile-picker>
+    <fieldset class="profile-picker" data-profile-picker data-hero-in aria-describedby="profile-status">
       <legend class="profile-picker__legend">${esc(hero.question)}</legend>
       <div class="profile-picker__options">
         ${join(
@@ -92,16 +120,17 @@ export const heroSection = () => `
           ),
         )}
       </div>
+      <p class="profile-picker__status" id="profile-status" data-profile-status>Elige una opción y adaptamos la página a ti.</p>
     </fieldset>
 
-    <div class="hero__actions">
+    <div class="hero__actions" data-hero-in>
       <a class="btn btn--primary btn--lg" href="#planes" data-hero-cta>
         <span>Ver planes</span>${icons.arrow}
       </a>
       ${whatsappLink('Hablar con un especialista')}
     </div>
 
-    <figure class="hero__quote">
+    <figure class="hero__quote" data-hero-in>
       <blockquote><p>«${esc(hero.quote.text)}»</p></blockquote>
       <figcaption>${esc(hero.quote.author)}</figcaption>
     </figure>
@@ -154,6 +183,7 @@ export const toolsSection = () => `
       lead: 'Tecnologías de IA que potencian tu trabajo, agrupadas por lo que te ayudan a hacer.',
       id: 'herramientas-title',
     })}
+    ${constellation()}
     <div class="tools" data-tools>
       ${join(
         toolGroups.map(
@@ -181,6 +211,57 @@ export const toolsSection = () => `
   </div>
 </section>`;
 
+/* Constelación: estrellas = botones reales posicionados en % del lienzo;
+   las líneas son SVG (una versión por disposición: móvil y escritorio). */
+const pct = (v) => Math.round(v * 100) / 100;
+const groupLabel = Object.fromEntries(toolGroups.map((g) => [g.id, g.label]));
+
+// positions está en % del lienzo (x e y). El viewBox mide 100 × height, así que
+// y se convierte a esas unidades; los botones usan el % directamente.
+const edgeLines = (layout) => {
+  const { height } = canvas[layout];
+  const lines = edges.map(([a, b, kind]) => {
+    const [x1, y1] = positions[a][layout];
+    const [x2, y2] = positions[b][layout];
+    const cls = kind === 'bridge' ? 'edge edge--bridge' : 'edge';
+    const y = (v) => pct((v * height) / 100);
+    return `<line class="${cls}" data-edge="${a} ${b}" x1="${x1}" y1="${y(y1)}" x2="${x2}" y2="${y(y2)}"/>`;
+  });
+  return `<svg class="constellation__lines constellation__lines--${layout}" viewBox="0 0 100 ${height}" preserveAspectRatio="none" aria-hidden="true" focusable="false">${join(lines)}</svg>`;
+};
+
+
+const constellation = () => `
+  <div class="constellation-wrap">
+    <ul class="constellation__legend" role="list" aria-hidden="true">
+      ${join(toolGroups.map((g) => `<li class="legend__item" data-group="${esc(g.id)}">${esc(g.label)}</li>`))}
+    </ul>
+    <div class="constellation" data-constellation role="group" aria-label="Constelación de las 14 herramientas" aria-describedby="constellation-help">
+      <p class="visually-hidden" id="constellation-help">Usa las flechas para moverte entre estrellas y Enter para abrir cada herramienta.</p>
+      ${edgeLines('m')}
+      ${edgeLines('d')}
+      <ul class="constellation__stars" role="list">
+        ${join(
+          tools.map((t, i) => {
+            const { m, d } = positions[t.id];
+            const style = `--xm:${m[0]}%;--ym:${m[1]}%;--xd:${d[0]}%;--yd:${d[1]}%`;
+            const flip = `${m[0] > 66 ? ' star--flip-m' : ''}${d[0] > 80 ? ' star--flip-d' : ''}`;
+            return `
+          <li class="star${flip}" style="${style}" data-group="${esc(t.group)}">
+            <button class="star__btn" type="button" data-tool="${esc(t.id)}" aria-expanded="false" aria-controls="tool-panel" tabindex="${i === 0 ? 0 : -1}">
+              <span class="star__dot" aria-hidden="true"></span>
+              <span class="star__name">${esc(t.name)}<span class="visually-hidden">, ${esc(groupLabel[t.group])}</span></span>
+            </button>
+          </li>`;
+          }),
+        )}
+      </ul>
+    </div>
+    <div class="tools-panel" id="tool-panel" data-tool-panel aria-live="polite">
+      <p class="tools-panel__hint">Toca una estrella para ver qué es cada herramienta.</p>
+    </div>
+  </div>`;
+
 export const casesSection = () => `
 <section class="section section--cases" id="casos-uso" data-stage="mision" aria-labelledby="casos-title">
   <div class="container">
@@ -195,6 +276,7 @@ export const casesSection = () => `
         cases.map(
           (c) => `
         <li class="case" id="caso-${esc(c.id)}" data-case data-audience="${esc(c.audience.join(' '))}">
+          <p class="case__match">Para tu perfil</p>
           <h3 class="case__role">${esc(c.role)}</h3>
           <div class="case__panels">
             <div class="case__panel case__panel--before">
@@ -216,6 +298,7 @@ export const casesSection = () => `
 const planCard = (p) => `
   <article class="plan" id="plan-${esc(p.id)}" data-plan="${esc(p.id)}" aria-labelledby="plan-${esc(p.id)}-name">
     <header class="plan__head">
+      <p class="plan__badge">Recomendada para ti</p>
       <p class="plan__kicker">Misión</p>
       <h3 class="plan__name" id="plan-${esc(p.id)}-name">${esc(p.name)}</h3>
       <p class="plan__duration">${esc(p.duration)}</p>
@@ -239,7 +322,16 @@ export const plansSection = () => `
       lead: 'Elige el plan que mejor impulse tu misión hacia la inteligencia artificial.',
       id: 'planes-title',
     })}
-    <div class="recommender-slot" id="recomendador" data-recommender></div>
+    <section class="recommender" id="recomendador" aria-labelledby="rec-title" data-recommender>
+      <div class="recommender__intro" data-rec-intro>
+        <p class="recommender__kicker">Recomendador de misiones</p>
+        <h3 class="recommender__title" id="rec-title">¿No sabes cuál elegir? Encuentra tu misión en <span class="highlight">3 preguntas</span>.</h3>
+        <button class="btn btn--primary" type="button" data-rec-start>
+          <span>Empezar</span>${icons.arrow}
+        </button>
+      </div>
+      <div class="recommender__body" data-rec-body hidden></div>
+    </section>
     <div class="plan-list" data-plan-list role="region" aria-label="Las cinco misiones" tabindex="0">
       ${join(plans.map(planCard))}
     </div>

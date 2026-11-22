@@ -1,0 +1,251 @@
+/* Constelación de herramientas (pieza de exploración libre) */
+
+/* Sin JS se muestra la lista; con JS, la constelación (la lista queda como respaldo) */
+.no-js .constellation-wrap,
+.js .tools {
+  display: none;
+}
+
+.constellation-wrap {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.constellation__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legend__item::before {
+  content: '';
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: 50%;
+  background: var(--soft-violet);
+}
+
+/* Lienzo: misma relación que el viewBox del SVG de cada disposición */
+.constellation {
+  position: relative;
+  aspect-ratio: 100 / 190;
+  border-radius: var(--radius-xl);
+  background: radial-gradient(closest-side, var(--soft-violet-06), var(--electric-violet-0));
+}
+
+.constellation__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.constellation__lines--d {
+  display: none;
+}
+
+.edge {
+  stroke: var(--soft-violet-24);
+  stroke-width: 0.35;
+  stroke-linecap: round;
+}
+
+.edge--bridge {
+  stroke: var(--white-12);
+}
+
+.edge.is-active {
+  stroke: var(--soft-violet);
+  stroke-width: 0.6;
+}
+
+.constellation__stars {
+  position: absolute;
+  inset: 0;
+}
+
+.star {
+  --x: var(--xm);
+  --y: var(--ym);
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+}
+
+/* El botón se desplaza para que el centro del punto caiga en la coordenada */
+.star__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transform: translate(calc(-1 * (var(--space-2) + var(--star-dot) / 2)), -50%);
+}
+
+.star--flip-m .star__btn {
+  flex-direction: row-reverse;
+  transform: translate(calc(-100% + var(--space-2) + var(--star-dot) / 2), -50%);
+}
+
+.star__dot {
+  flex: none;
+  width: var(--star-dot);
+  height: var(--star-dot);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 0 0 var(--space-1) var(--soft-violet-24);
+}
+
+.star__btn:hover .star__dot,
+.star__btn[aria-expanded='true'] .star__dot {
+  background: var(--soft-violet);
+  box-shadow: 0 0 0 var(--space-2) var(--electric-violet-40);
+}
+
+.star__btn:hover .star__name,
+.star__btn[aria-expanded='true'] .star__name {
+  color: var(--accent);
+}
+
+.constellation[data-has-selection] .star:not([data-active]) .star__name {
+  color: var(--text-muted);
+}
+
+/* Panel de detalle: en móvil flota abajo mientras se explora */
+.tools-panel {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: var(--z-base);
+}
+
+.tools-panel__hint {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--black-90);
+  border: var(--border-w) solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.tools-panel__card {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--black-90);
+  border: var(--border-w) solid var(--soft-violet);
+}
+
+.tools-panel__name {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+}
+
+.tools-panel__label {
+  margin-top: var(--space-2);
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.tools-panel__text {
+  color: var(--text-body);
+}
+
+.tools-panel__close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+
+.tools-panel__close:hover {
+  color: var(--white);
+  background: var(--white-06);
+}
+
+@media (min-width: 48rem) {
+  .constellation {
+    aspect-ratio: 100 / 56;
+  }
+
+  .constellation__lines--m {
+    display: none;
+  }
+
+  .constellation__lines--d {
+    display: block;
+  }
+
+  .edge {
+    stroke-width: 0.2;
+  }
+
+  .edge.is-active {
+    stroke-width: 0.35;
+  }
+
+  .star {
+    --x: var(--xd);
+    --y: var(--yd);
+  }
+
+  .star--flip-m .star__btn {
+    flex-direction: row;
+    transform: translate(calc(-1 * (var(--space-2) + var(--star-dot) / 2)), -50%);
+  }
+
+  .star--flip-d .star__btn {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + var(--space-2) + var(--star-dot) / 2), -50%);
+  }
+}
+
+@media (min-width: 64rem) {
+  .constellation-wrap {
+    grid-template-columns: 1fr minmax(16rem, 22rem);
+    grid-template-areas: 'legend legend' 'sky panel';
+    align-items: start;
+  }
+
+  .constellation__legend {
+    grid-area: legend;
+  }
+
+  .constellation {
+    grid-area: sky;
+  }
+
+  .tools-panel {
+    grid-area: panel;
+    position: static;
+  }
+
+  .tools-panel__hint {
+    text-align: left;
+  }
+}
