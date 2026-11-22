@@ -12,7 +12,7 @@ import { createTimeline } from 'animejs/timeline';
 import { createDrawable } from 'animejs/svg';
 import { stagger, set } from 'animejs/utils';
 import { tools, toolGroups } from '../data/tools.js';
-import { esc, todo } from '../templates/html.js';
+import { esc } from '../templates/html.js';
 import { icons } from '../templates/icons.js';
 import { motionScope, onceInView, prefersReducedMotion, DUR, EASE } from '../utils/motion.js';
 
@@ -125,8 +125,6 @@ export function init(section = document.querySelector('#herramientas')) {
         <h3 class="tools-panel__name">${esc(tool.name)}</h3>
         <p class="tools-panel__label">Qué es</p>
         <p class="tools-panel__text">${esc(tool.what)}</p>
-        <p class="tools-panel__label">Para qué la usamos en el curso</p>
-        <p class="tools-panel__text">${tool.course ? esc(tool.course) : todo('uso en el curso')}</p>
         <button class="tools-panel__close" type="button" data-panel-close>
           ${icons.close}<span class="visually-hidden">Cerrar ${esc(tool.name)}</span>
         </button>
@@ -147,7 +145,7 @@ export function init(section = document.querySelector('#herramientas')) {
     sky.removeAttribute('data-has-selection');
     sky.querySelectorAll('.star[data-active]').forEach((s) => s.removeAttribute('data-active'));
     sky.querySelectorAll('.edge.is-active').forEach((l) => l.classList.remove('is-active'));
-    panel.innerHTML = `<p class="tools-panel__hint">Toca una estrella para ver qué es cada herramienta.</p>`;
+    panel.innerHTML = `<p class="tools-panel__hint">Toca una estrella para conocer cada herramienta.</p>`;
     btn.focus();
   }
 

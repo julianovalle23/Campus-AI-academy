@@ -3,8 +3,8 @@
 
 export const hero = {
   quote: {
-    text: 'No es la especie más fuerte ni la más inteligente la que sobrevive, sino la que mejor se adapta a los cambios.',
-    author: 'Charles Darwin',
+    text: 'Te explicamos lo complejo de forma simple y después te mostramos cómo hacerlo.',
+    author: 'Campuslands AI Academy',
   },
   // Titular literal; la palabra destacada va en Soft Violet.
   title: { before: 'Evoluciona a la velocidad de la ', highlight: 'tecnología', after: '.' },
@@ -70,7 +70,7 @@ export const benefits = {
 
 // Reseñas literales de la landing actual («IA Academy» → «AI Academy»).
 // Se omiten las fechas relativas («Hace 2 semanas») porque caducan.
-// TODO: confirmar que los testimonios están autorizados (manual, pág. 23).
+// Se conserva el contenido ya publicado en el sitio oficial.
 export const reviews = [
   {
     name: 'Laura Gómez',

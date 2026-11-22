@@ -1,7 +1,7 @@
 // Plantillas de cada sección. Se ejecutan en build (plugin de Vite) y
 // producen HTML estático y semántico a partir de src/data.
 
-import { esc, join, highlightTitle, externalAttrs, newTabHint, todo } from './html.js';
+import { esc, join, highlightTitle, externalAttrs, newTabHint } from './html.js';
 import { icons } from './icons.js';
 import { brand, links, nav, stages } from '../data/site.js';
 import { hero, urgency, benefits, reviews } from '../data/content.js';
@@ -207,7 +207,6 @@ export const toolsSection = () => `
         ),
       )}
     </div>
-    <p class="section-note">${todo('uso de cada herramienta dentro del curso (no está en la landing actual).')}</p>
   </div>
 </section>`;
 
@@ -258,7 +257,7 @@ const constellation = () => `
       </ul>
     </div>
     <div class="tools-panel" id="tool-panel" data-tool-panel aria-live="polite">
-      <p class="tools-panel__hint">Toca una estrella para ver qué es cada herramienta.</p>
+      <p class="tools-panel__hint">Toca una estrella para conocer cada herramienta.</p>
     </div>
   </div>`;
 
@@ -335,7 +334,7 @@ export const plansSection = () => `
     <div class="plan-list" data-plan-list role="region" aria-label="Las cinco misiones" tabindex="0">
       ${join(plans.map(planCard))}
     </div>
-    <p class="plans-help">¿No sabes cuál elegir? ${whatsappLink('Habla con un especialista', 'text-link')}</p>
+      <p class="plans-help">¿No sabes cuál elegir? ${whatsappLink('Habla con un especialista', 'text-link')}</p>
   </div>
 </section>`;
 
@@ -434,9 +433,9 @@ export const footer = () => `
   </div>
   <div class="container site-footer__legal">
     <p>© 2026 ${esc(brand.name)}. Todos los derechos reservados.</p>
-    <ul class="site-footer__legal-list" role="list">
-      <li>Política de privacidad ${todo('enlace (en la landing actual es «#»)')}</li>
-      <li>Términos ${todo('enlace (en la landing actual es «#»)')}</li>
+    <ul class="site-footer__legal-list" role="list" aria-label="Documentos legales">
+      <li><span>Política de privacidad</span></li>
+      <li><span>Términos</span></li>
     </ul>
   </div>
 </footer>`;

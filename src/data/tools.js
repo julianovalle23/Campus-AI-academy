@@ -1,7 +1,7 @@
 // Las 14 herramientas que se enseñan (lista literal de la landing actual).
 // `what` describe qué es cada herramienta (dato público del producto).
-// `course` = para qué se usa en el curso: la landing actual no lo dice.
-// TODO: pedir al equipo el uso de cada herramienta en el curso.
+// Se muestran descripciones generales; no se atribuye un uso específico al curso
+// porque la fuente publicada no documenta ese detalle.
 
 export const toolGroups = [
   { id: 'asistentes', label: 'Asistentes' },
@@ -26,4 +26,4 @@ export const tools = [
   { id: 'elevenlabs', name: 'ElevenLabs', group: 'creacion', what: 'Genera voces sintéticas realistas, locuciones y doblajes.' },
   { id: 'heygen', name: 'HeyGen', group: 'creacion', what: 'Crea videos con avatares y traduce videos a otros idiomas.' },
   { id: 'github-copilot', name: 'GitHub Copilot', group: 'codigo', what: 'Asistente de programación que sugiere y explica código dentro del editor.' },
-].map((t) => ({ ...t, course: null }));
+];

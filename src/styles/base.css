@@ -148,19 +148,6 @@ main:focus,
 .container--narrow {
   width: min(100% - 2 * var(--gutter), var(--container-narrow));
 }
-
 .highlight {
   color: var(--accent);
-}
-
-/* Dato pendiente: visible a propósito durante el desarrollo */
-.todo {
-  display: inline-block;
-  padding: 0 var(--space-2);
-  border: var(--border-w) dashed var(--soft-violet);
-  border-radius: var(--radius-sm);
-  color: var(--soft-violet);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-  letter-spacing: 0.02em;
 }

@@ -19,7 +19,8 @@ export const links = {
   whatsapp:
     'https://wa.me/573052105674?text=' +
     encodeURIComponent('Hola, quiero información del curso de IA de Campuslands AI Academy'),
-  // TODO: la landing actual tiene estos enlaces con href="#". Pedir las URL reales.
+  // La landing publicada también apunta estos enlaces a «#»; no se conocen
+  // destinos reales y no se inventan páginas legales.
   privacidad: null,
   terminos: null,
 };

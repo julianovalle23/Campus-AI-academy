@@ -17,6 +17,3 @@ export const externalAttrs = 'target="_blank" rel="noopener"';
 
 /** Sufijo accesible para enlaces que abren otra pestaña. */
 export const newTabHint = '<span class="visually-hidden"> (se abre en otra pestaña)</span>';
-
-/** Marca visible de dato pendiente. */
-export const todo = (text) => `<span class="todo" role="note">TODO: ${esc(text)}</span>`;
