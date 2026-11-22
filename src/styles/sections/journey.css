@@ -1,0 +1,103 @@
+/* Indicador del viaje: trayectoria con 4 etapas bajo el menú fijo */
+
+.journey {
+  border-top: var(--border-w) solid var(--white-06);
+  --journey: 0;
+}
+
+.journey__inner {
+  position: relative;
+  height: var(--journey-h);
+}
+
+/* La trayectoria va del centro de la etapa 1 al centro de la etapa 4 */
+.journey__track {
+  position: absolute;
+  top: var(--journey-line-y);
+  left: 12.5%;
+  right: 12.5%;
+  height: var(--border-w);
+  background: var(--white-12);
+}
+
+.journey__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--soft-violet);
+  transform: scaleX(var(--journey));
+  transform-origin: left center;
+}
+
+/* La nave: un contenedor del ancho de la trayectoria que se traslada su propio ancho */
+.journey__ship {
+  position: absolute;
+  inset: 0;
+  transform: translateX(calc(var(--journey) * 100%));
+}
+
+.journey__dot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--journey-dot);
+  height: var(--journey-dot);
+  margin: calc(var(--journey-dot) / -2) 0 0 calc(var(--journey-dot) / -2);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 0 0 var(--space-1) var(--electric-violet-40);
+}
+
+.journey__stages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: 100%;
+}
+
+.journey__stage {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  height: 100%;
+  padding-bottom: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+}
+
+.journey__node {
+  position: absolute;
+  top: var(--journey-line-y);
+  left: 50%;
+  width: var(--journey-node);
+  height: var(--journey-node);
+  margin: calc(var(--journey-node) / -2) 0 0 calc(var(--journey-node) / -2);
+  border-radius: 50%;
+  background: var(--black);
+  border: var(--focus-w) solid var(--muted-gray);
+}
+
+.journey__stage:hover {
+  color: var(--white);
+}
+
+.journey__stage[aria-current='step'] {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.journey__stage[aria-current='step'] .journey__node {
+  border-color: var(--soft-violet);
+  background: var(--soft-violet);
+}
+
+.journey__stage:focus-visible {
+  outline-offset: calc(-1 * var(--focus-w));
+}
+
+@media (min-width: 48rem) {
+  .journey__stage {
+    font-size: var(--fs-sm);
+  }
+}

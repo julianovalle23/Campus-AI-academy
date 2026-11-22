@@ -13,7 +13,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: calc(var(--header-h) + var(--space-4));
+  scroll-padding-top: calc(var(--header-total) + var(--space-4));
   color-scheme: dark;
 }
 
@@ -78,7 +78,8 @@ p {
   text-wrap: pretty;
 }
 
-ul[role='list'] {
+ul[role='list'],
+ol[role='list'] {
   list-style: none;
   padding: 0;
 }
@@ -89,8 +90,18 @@ ul[role='list'] {
   border-radius: var(--radius-sm);
 }
 
-main:focus {
+main:focus,
+[tabindex='-1']:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Los encabezados que reciben foco por programa (para lectores de pantalla) no muestran anillo */
+[data-rec-heading]:focus {
+  outline: none;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 ::selection {

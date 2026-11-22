@@ -171,8 +171,7 @@
 /* --- Halos de luz (manual pág. 13): Electric Violet arriba a la derecha,
    Evox Purple abajo a la izquierda, en las esquinas y nunca detrás del texto. --- */
 .has-halos {
-  isolation: isolate;
-  overflow: clip;
+  isolation: isolate; /* sin recorte: el halo se difumina hacia la sección vecina */
 }
 
 .has-halos::before,

@@ -21,14 +21,23 @@
   <body>
     <!--@section:header-->
     <main id="contenido" tabindex="-1">
-      <!--@section:hero-->
-      <!--@section:urgency-->
-      <!--@section:benefits-->
-      <!--@section:tools-->
-      <!--@section:cases-->
-      <!--@section:plans-->
-      <!--@section:reviews-->
-      <!--@section:faqs-->
+      <!-- Las secciones se agrupan por etapa del viaje (indicador de progreso) -->
+      <div class="stage" data-stage-group="despegue">
+        <!--@section:hero-->
+        <!--@section:urgency-->
+      </div>
+      <div class="stage" data-stage-group="orbita">
+        <!--@section:benefits-->
+        <!--@section:tools-->
+      </div>
+      <div class="stage" data-stage-group="mision">
+        <!--@section:cases-->
+        <!--@section:plans-->
+      </div>
+      <div class="stage" data-stage-group="aterrizaje">
+        <!--@section:reviews-->
+        <!--@section:faqs-->
+      </div>
     </main>
     <!--@section:footer-->
     <script type="module" src="/src/main.js"></script>
