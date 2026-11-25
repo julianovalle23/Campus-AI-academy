@@ -36,11 +36,11 @@ const enrollLink = (label = 'Inscríbete', cls = 'btn btn--primary') => `
 const logo = ({ variant, widths, display, alt = brand.name, cls = '', eager = false }) => {
   const name = variant === 'horizontal' ? 'logo-horizontal-blanca' : 'logo-principal';
   const ratio = variant === 'horizontal' ? 316 / 1400 : 704 / 950;
-  const srcset = (ext) => widths.map((w) => `/logo/${name}-${w}.${ext} ${w}w`).join(', ');
+  const srcset = (ext) => widths.map((w) => `logo/${name}-${w}.${ext} ${w}w`).join(', ');
   const h = Math.round(display * ratio);
   return `<picture class="${cls}">
     <source type="image/webp" srcset="${srcset('webp')}" sizes="${display}px">
-    <img src="/logo/${name}-${widths[0]}.png" srcset="${srcset('png')}" sizes="${display}px"
+    <img src="logo/${name}-${widths[0]}.png" srcset="${srcset('png')}" sizes="${display}px"
       width="${display}" height="${h}" alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
   </picture>`;
 };
@@ -51,10 +51,10 @@ const logo = ({ variant, widths, display, alt = brand.name, cls = '', eager = fa
  */
 const maxPicture = (pose, { sizes, cls = '', hidden = false, decorative = false }) => {
   const m = max[pose];
-  const srcset = (ext) => m.widths.map((w) => `/max/max-${pose}-${w}.${ext} ${w}w`).join(', ');
+  const srcset = (ext) => m.widths.map((w) => `max/max-${pose}-${w}.${ext} ${w}w`).join(', ');
   return `<picture class="max ${cls}" data-max="${pose}"${hidden ? ' hidden' : ''}>
     <source type="image/avif" srcset="${srcset('avif')}" sizes="${sizes}">
-    <img class="max__img" src="/max/max-${pose}-${m.widths[1]}.webp" srcset="${srcset('webp')}" sizes="${sizes}"
+    <img class="max__img" src="max/max-${pose}-${m.widths[1]}.webp" srcset="${srcset('webp')}" sizes="${sizes}"
       width="${m.width}" height="${m.height}" alt="${decorative ? '' : esc(m.alt)}" loading="lazy" decoding="async">
   </picture>`;
 };
@@ -357,6 +357,83 @@ export const plansSection = () => `
   </div>
 </section>`;
 
+/* Solicitud de información: formulario real (funciona con teclado y lector de
+   pantalla); src/modules/lead-form.js valida, envía al webhook de n8n y
+   muestra carga, errores y confirmación. Los programas son las cinco misiones. */
+const field = ({ id, label, hint, required = true, input }) => `
+  <div class="lead-field" data-field="${esc(id)}">
+    <label class="lead-field__label" for="lead-${esc(id)}">${esc(label)}${
+      required ? '' : ' <span class="lead-field__optional">(opcional)</span>'
+    }</label>
+    ${hint ? `<p class="lead-field__hint" id="lead-${esc(id)}-hint">${esc(hint)}</p>` : ''}
+    ${input}
+    <p class="lead-field__error" id="lead-${esc(id)}-error" data-error-for="${esc(id)}" hidden></p>
+  </div>`;
+
+export const contactSection = () => `
+<section class="section section--lead has-halos" id="solicitar-informacion" data-stage="mision" aria-labelledby="lead-title">
+  <div class="container lead-layout">
+    ${sectionHead({
+      tag: 'Solicitar información',
+      title: { before: 'Cuéntanos qué misión ', highlight: 'te interesa', after: '' },
+      lead: 'Déjanos tus datos y el equipo de AI Academy te contactará con información del programa que elijas.',
+      id: 'lead-title',
+    })}
+    <div class="lead-card card" data-lead>
+      <form class="lead-form" data-lead-form method="post" novalidate aria-describedby="lead-required-note">
+        <p class="lead-form__note" id="lead-required-note">Todos los campos son obligatorios, excepto el teléfono.</p>
+        <div class="lead-form__summary" data-lead-summary role="alert" tabindex="-1" hidden></div>
+        <div class="lead-form__grid">
+          ${field({
+            id: 'name',
+            label: 'Nombre',
+            input: `<input class="lead-input" id="lead-name" name="name" type="text" autocomplete="name" maxlength="100" required aria-describedby="lead-name-error">`,
+          })}
+          ${field({
+            id: 'email',
+            label: 'Correo electrónico',
+            input: `<input class="lead-input" id="lead-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="lead-email-error">`,
+          })}
+          ${field({
+            id: 'program',
+            label: 'Programa de interés',
+            input: `<select class="lead-input lead-input--select" id="lead-program" name="program" required aria-describedby="lead-program-error">
+              <option value="">Elige una misión</option>
+              ${join(plans.map((p) => `<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.duration)}</option>`))}
+            </select>`,
+          })}
+          ${field({
+            id: 'phone',
+            label: 'Teléfono',
+            required: false,
+            hint: 'Solo si prefieres que te llamemos o escribamos por ese medio.',
+            input: `<input class="lead-input" id="lead-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" aria-describedby="lead-phone-hint lead-phone-error">`,
+          })}
+        </div>
+        <div class="lead-form__trap" aria-hidden="true">
+          <label for="lead-website">No llenes este campo</label>
+          <input id="lead-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="lead-form__actions">
+          <button class="btn btn--primary btn--lg lead-form__submit" type="submit" data-lead-submit>
+            <span class="lead-form__spinner" aria-hidden="true"></span>
+            <span data-lead-submit-label>Enviar solicitud</span>${icons.arrow}
+          </button>
+          <p class="lead-form__status" data-lead-status role="status" aria-live="polite"></p>
+        </div>
+      </form>
+      <div class="lead-done" data-lead-done hidden>
+        ${maxPicture('aprobando', { sizes: '6rem', cls: 'max--lead', decorative: true })}
+        <div>
+          <h3 class="lead-done__title" tabindex="-1" data-lead-done-title>¡Recibimos tu solicitud!</h3>
+          <p class="lead-done__text" data-lead-done-text></p>
+          <button class="text-link" type="button" data-lead-again>Enviar otra solicitud</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`;
+
 const initials = (name) =>
   name
     .split(' ')
@@ -478,6 +555,7 @@ export const sections = {
   tools: toolsSection,
   cases: casesSection,
   plans: plansSection,
+  contact: contactSection,
   reviews: reviewsSection,
   faqs: faqsSection,
   footer,

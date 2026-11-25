@@ -25,9 +25,14 @@ function staticSections() {
 }
 
 export default defineConfig({
+  // Rutas relativas: dist/ se puede abrir con Live Server o desde cualquier subcarpeta.
+  base: './',
   plugins: [staticSections()],
   build: {
     target: 'es2020',
     cssCodeSplit: true,
+    rollupOptions: {
+      input: { main: 'index.html', admin: 'admin.html' },
+    },
   },
 });

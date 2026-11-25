@@ -5,3 +5,6 @@ dist/
 desktop.ini
 *.log
 docs/*.pdf
+
+# Variables locales (URL de webhooks de n8n); nunca secretos
+.env.local

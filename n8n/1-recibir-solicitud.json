@@ -1,0 +1,586 @@
+{
+  "name": "AI Academy · 1 · Recibir solicitud y avisar",
+  "nodes": [
+    {
+      "id": "699874ee-3f04-4daf-adfc-6820f8ae8d9e",
+      "name": "Formulario del landing",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        288
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aia-solicitud",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173,http://localhost:4173"
+        }
+      },
+      "webhookId": "be89eeda-306c-4933-80ee-8549012ce1f7"
+    },
+    {
+      "id": "f4c7b0b0-5d4d-451d-ab37-82dc388abbc7",
+      "name": "Validar solicitud",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        288
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Mismas reglas que src/lib/lead.js del landing: aquí se vuelven a aplicar.\nconst PROGRAMAS = { ignition: 'Ignition', booster: 'Booster', liftoff: 'Liftoff', odyssey: 'Odyssey', nebula: 'Nebula' };\nconst b = $json.body || {};\nconst limpiar = (v) => (typeof v === 'string' ? v.trim().replace(/\\s+/g, ' ') : '');\nconst nombre = limpiar(b.name);\nconst correo = limpiar(b.email).toLowerCase();\nconst programa = limpiar(b.program);\nconst telefono = limpiar(b.phone);\nconst errores = {};\nif (b.website) errores.form = 'No pudimos procesar la solicitud.';\nif (!nombre) errores.name = 'Escribe tu nombre.';\nelse if (nombre.length < 2) errores.name = 'El nombre debe tener al menos 2 caracteres.';\nelse if (nombre.length > 100) errores.name = 'El nombre admite hasta 100 caracteres.';\nif (!correo) errores.email = 'Escribe tu correo electrónico.';\nelse if (correo.length > 254 || !/^[^\\s@]+@[^\\s@.]+(\\.[^\\s@.]+)+$/.test(correo)) errores.email = 'Escribe un correo válido, por ejemplo nombre@dominio.com.';\nif (!programa) errores.program = 'Elige el programa que te interesa.';\nelse if (!PROGRAMAS[programa]) errores.program = 'Elige uno de los programas de la lista.';\nif (telefono) {\n  const digitos = telefono.replace(/\\D/g, '').length;\n  if (telefono.length > 20 || !/^\\+?[\\d\\s().-]+$/.test(telefono) || digitos < 7 || digitos > 15)\n    errores.phone = 'Escribe un teléfono válido (solo números, de 7 a 15 dígitos) o déjalo vacío.';\n}\nif (Object.keys(errores).length) return { json: { valido: false, errores } };\nconst ahora = new Date();\nconst id = 'S-' + ahora.toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 7).toUpperCase();\n// Texto del aviso, escapado para parse_mode HTML. El teléfono solo si existe.\nconst e = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst lineas = ['<b>Nueva solicitud de información</b> (' + id + ')', '',\n  '<b>Nombre:</b> ' + e(nombre), '<b>Correo:</b> ' + e(correo), '<b>Programa:</b> ' + e(PROGRAMAS[programa])];\nif (telefono) lineas.push('<b>Teléfono:</b> ' + e(telefono));\nlineas.push('', 'Búscala en el panel con el código ' + id + '.');\nreturn { json: {\n  valido: true, id, fecha: ahora.toISOString(), nombre, correo,\n  programa: PROGRAMAS[programa], telefono, estado: 'Nuevo', aviso: 'pendiente',\n  mensaje: lineas.join('\\n'),\n} };"
+      }
+    },
+    {
+      "id": "844fc654-1267-4477-879a-bca0a050467e",
+      "name": "¿Solicitud válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        288
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valido }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "f1897c6c-7afd-44ba-91b5-5a34e770d717",
+      "name": "Responder 422: revisar campos",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        384
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: \"Revisa los campos marcados.\", fields: $json.errores }) }}",
+        "options": {
+          "responseCode": 422
+        }
+      }
+    },
+    {
+      "id": "423dae20-7483-4b78-9e26-9bef8bd563aa",
+      "name": "Guardar en Solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        192
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "fecha": "={{ $json.fecha }}",
+            "nombre": "={{ $json.nombre }}",
+            "correo": "={{ $json.correo }}",
+            "programa": "={{ $json.programa }}",
+            "telefono": "={{ $json.telefono }}",
+            "estado": "={{ $json.estado }}",
+            "actualizado": "={{ $json.fecha }}",
+            "aviso": "={{ $json.aviso }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "programa",
+              "displayName": "programa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aviso",
+              "displayName": "aviso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "3d7e7df3-86f6-4f00-b041-3c93df63aa6a",
+      "name": "Responder 500: no se guardó",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1568,
+        384
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"No pudimos guardar tu solicitud. Intenta de nuevo en unos minutos.\" }",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "id": "9fdda0b0-6bae-4457-8ff2-66f3d5a71fc6",
+      "name": "Historial: solicitud creada",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        192
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Historial"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha": "={{ $(\"Validar solicitud\").item.json.fecha }}",
+            "solicitud_id": "={{ $(\"Validar solicitud\").item.json.id }}",
+            "campo": "creación",
+            "antes": "",
+            "despues": "Nuevo",
+            "quien": "Formulario del landing"
+          },
+          "schema": [
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "solicitud_id",
+              "displayName": "solicitud_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campo",
+              "displayName": "campo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "antes",
+              "displayName": "antes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "despues",
+              "displayName": "despues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quien",
+              "displayName": "quien",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "5f777fd5-9df9-48bf-83d1-63615adc7941",
+      "name": "Responder 201: guardada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        192
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, id: $(\"Validar solicitud\").item.json.id }) }}",
+        "options": {
+          "responseCode": 201
+        }
+      }
+    },
+    {
+      "id": "714dc197-5777-4bf7-bdc6-cfb1538892f6",
+      "name": "Avisar al chat de prueba",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        192
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "REEMPLAZAR_CON_CHAT_ID_DE_PRUEBA",
+        "text": "={{ $(\"Validar solicitud\").item.json.mensaje }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "onError": "continueErrorOutput",
+      "webhookId": "baec0675-3fc8-4e7a-844a-60f06230948b"
+    },
+    {
+      "id": "bbfc8dfc-ad73-40c3-967e-229478b65176",
+      "name": "Marcar aviso enviado",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        0
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $(\"Validar solicitud\").item.json.id }}",
+            "aviso": "enviado"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aviso",
+              "displayName": "aviso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      }
+    },
+    {
+      "id": "90933510-367a-4e20-9bbe-626a68c89c83",
+      "name": "Marcar aviso fallido",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        192
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $(\"Validar solicitud\").item.json.id }}",
+            "aviso": "fallido"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aviso",
+              "displayName": "aviso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Formulario del landing": {
+      "main": [
+        [
+          {
+            "node": "Validar solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar solicitud": {
+      "main": [
+        [
+          {
+            "node": "¿Solicitud válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Solicitud válida?": {
+      "main": [
+        [
+          {
+            "node": "Guardar en Solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 422: revisar campos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar en Solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Historial: solicitud creada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 500: no se guardó",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historial: solicitud creada": {
+      "main": [
+        [
+          {
+            "node": "Responder 201: guardada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder 201: guardada": {
+      "main": [
+        [
+          {
+            "node": "Avisar al chat de prueba",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar al chat de prueba": {
+      "main": [
+        [
+          {
+            "node": "Marcar aviso enviado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar aviso fallido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Recibe el formulario del landing, valida, guarda en Google Sheets y avisa a un chat privado de prueba en Telegram."
+  }
+}

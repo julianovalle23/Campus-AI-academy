@@ -1,0 +1,1522 @@
+{
+  "name": "AI Academy · 2 · API del panel de solicitudes",
+  "nodes": [
+    {
+      "id": "a639654b-2675-4470-9a0a-3851980c38a6",
+      "name": "Panel: petición",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        608
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aia-panel",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173,http://localhost:4173"
+        }
+      },
+      "webhookId": "c5655690-f865-4608-a5fc-21265968d9d1"
+    },
+    {
+      "id": "e39d6268-1945-4480-bc20-5e91d9c4a435",
+      "name": "Leer petición",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        608
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const b = $json.body || {};\nconst s = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');\nconst acciones = ['login', 'listar', 'detalle', 'actualizar', 'salir'];\nreturn { json: {\n  accion: acciones.includes(b.accion) ? b.accion : 'desconocida',\n  usuario: s(b.usuario, 60).toLowerCase(),\n  clave: typeof b.clave === 'string' ? b.clave.slice(0, 200) : '',\n  token: s(b.token, 200),\n  id: s(b.id, 40),\n  estado: s(b.estado, 40),\n  nota: s(b.nota, 2001),\n} };"
+      }
+    },
+    {
+      "id": "79dce676-4feb-4c1f-8bb2-f4624217e302",
+      "name": "¿Es inicio de sesión?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        608
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.accion }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "login"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "b0281930-c68a-48cb-b474-b632536f9f25",
+      "name": "Buscar administrador",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        96
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Administradores"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "usuario",
+              "lookupValue": "={{ $json.usuario || \"-\" }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "eb9da9a1-ed01-4ba4-802b-218e013e1b76",
+      "name": "Preparar verificación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const p = $('Leer petición').item.json;\nconst a = $json || {};\nconst activo = ['si', 'sí', 'true', '1', 'x'].includes(String(a.activo ?? '').trim().toLowerCase());\nconst existe = Boolean(a.usuario && a.salt && a.hash && activo && p.clave);\n// Si el usuario no existe se calcula igual un hash, para no revelar cuáles existen.\nreturn { json: {\n  existe,\n  material: (existe ? String(a.salt) : 'sin-usuario') + p.clave,\n  esperado: existe ? String(a.hash).toLowerCase() : 'x',\n  usuario: String(a.usuario || ''),\n  nombre: String(a.nombre || a.usuario || ''),\n} };"
+      }
+    },
+    {
+      "id": "104d7b31-d63a-4f4f-9ffc-5181dd1dd7e3",
+      "name": "Hash de la clave",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        96
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "value": "={{ $json.material }}",
+        "dataPropertyName": "calculado",
+        "encoding": "hex"
+      }
+    },
+    {
+      "id": "c565f37c-22cd-4cdc-9da5-3816ffb837db",
+      "name": "¿Credenciales correctas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.existe }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "leftValue": "={{ $json.calculado }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $json.esperado }}"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5dffe6d4-e963-4b24-8680-2b94632d833c",
+      "name": "Generar token",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        96
+      ],
+      "parameters": {
+        "action": "generate",
+        "encodingType": "hex",
+        "stringLength": 64,
+        "dataPropertyName": "token"
+      }
+    },
+    {
+      "id": "6e0f7021-3fda-43bd-88b5-ed79c5e84e47",
+      "name": "Hash del token nuevo",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        96
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "value": "={{ $json.token }}",
+        "dataPropertyName": "token_hash",
+        "encoding": "hex"
+      }
+    },
+    {
+      "id": "9b225198-9737-47d5-9c82-e658fa384241",
+      "name": "Guardar sesión",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        96
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sesiones"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "token_hash": "={{ $json.token_hash }}",
+            "usuario": "={{ $json.usuario }}",
+            "nombre": "={{ $json.nombre }}",
+            "expira": "={{ $now.plus(8, \"hours\").toUTC().toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "usuario",
+              "displayName": "usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expira",
+              "displayName": "expira",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "72864c3b-c13f-461c-993d-4ea83068faad",
+      "name": "Responder: sesión iniciada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, token: $(\"Hash del token nuevo\").item.json.token, nombre: $(\"Hash del token nuevo\").item.json.nombre }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "9831ba81-234f-4518-b5cb-f1a63a454f45",
+      "name": "Responder 500: sesión no guardada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2240,
+        192
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"No pudimos iniciar sesión. Intenta de nuevo.\" }",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "id": "ed40b5ca-2c0e-41d8-ad12-2f4a03e3f942",
+      "name": "Responder 401: credenciales",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1568,
+        288
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"Usuario o contraseña incorrectos.\" }",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "52d14052-0a1c-4361-b191-8128e0f15eca",
+      "name": "Hash del token recibido",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        672,
+        992
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "value": "={{ $json.token || \"sin-token\" }}",
+        "dataPropertyName": "token_hash",
+        "encoding": "hex"
+      }
+    },
+    {
+      "id": "6721fe02-84a2-4922-b3ae-6e48344f0045",
+      "name": "Buscar sesión",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        992
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sesiones"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "token_hash",
+              "lookupValue": "={{ $json.token_hash }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "cb04a99e-8c2e-4c5e-a385-ad9c2241be68",
+      "name": "Validar sesión",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        992
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const p = $('Leer petición').item.json;\nconst s = $json || {};\nconst vigente = Boolean(s.token_hash && s.expira && Date.parse(s.expira) > Date.now());\nreturn { json: { ...p, clave: undefined, token: undefined, valida: vigente,\n  admin: vigente ? String(s.nombre || s.usuario) : '', token_hash: $('Hash del token recibido').item.json.token_hash } };"
+      }
+    },
+    {
+      "id": "2c467f81-779f-4cc8-97e9-665791e15a87",
+      "name": "¿Sesión vigente?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        992
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valida }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "3bb11356-0365-4f85-88c6-12baf9bcc685",
+      "name": "Responder 401: sin sesión",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1568,
+        1104
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"Inicia sesión para continuar.\" }",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "b17ce16e-67a4-4a1f-b693-8b6429329ad2",
+      "name": "Según la acción",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        816
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "listar",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.accion }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "listar"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "detalle",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.accion }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "detalle"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "actualizar",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.accion }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "actualizar"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "salir",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.accion }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "salir"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Desconocida"
+        }
+      }
+    },
+    {
+      "id": "96488e6f-7321-4c8c-8e7b-6d9d0ebbbba2",
+      "name": "Responder 400: acción desconocida",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        1248
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"Acción no válida.\" }",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "55c6f731-8b94-4ce0-adf7-06d1ed49a2b7",
+      "name": "Leer solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        384
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "options": {}
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d2e46047-ac5b-4072-9ebe-06fefdf30cae",
+      "name": "Armar lista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        384
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const leads = $input.all().map((i) => i.json).filter((r) => r.id)\n  .map((r) => ({ id: String(r.id), fecha: r.fecha, nombre: r.nombre, correo: r.correo, programa: r.programa,\n    telefono: r.telefono ? String(r.telefono) : '', estado: r.estado, actualizado: r.actualizado, aviso: r.aviso }))\n  .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));\nreturn [{ json: { ok: true, admin: $('Validar sesión').first().json.admin, leads } }];"
+      }
+    },
+    {
+      "id": "c5b4e364-c283-404f-bf4d-e777d1edcadd",
+      "name": "Responder: lista",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2240,
+        384
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "d825b111-bf14-4688-930f-93df836afd87",
+      "name": "Leer solicitud",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        576
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.id || \"-\" }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "905ddec4-5f9d-48b9-b7ca-93411d1dd5c1",
+      "name": "Leer historial",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        576
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Historial"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "solicitud_id",
+              "lookupValue": "={{ $(\"Validar sesión\").first().json.id || \"-\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "5d34a5a3-1a45-41b1-99ac-0bb522c49c10",
+      "name": "Armar detalle",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        576
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r = $('Leer solicitud').first().json || {};\nif (!r.id) return [{ json: { codigo: 404, cuerpo: { ok: false, error: 'No encontramos esa solicitud.' } } }];\nconst historial = $input.all().map((i) => i.json).filter((h) => h.fecha)\n  .map((h) => ({ fecha: h.fecha, campo: h.campo, antes: h.antes ?? '', despues: h.despues ?? '', quien: h.quien }))\n  .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));\nconst lead = { id: String(r.id), fecha: r.fecha, nombre: r.nombre, correo: r.correo, programa: r.programa,\n  telefono: r.telefono ? String(r.telefono) : '', estado: r.estado, actualizado: r.actualizado, aviso: r.aviso };\nreturn [{ json: { codigo: 200, cuerpo: { ok: true, lead, historial } } }];"
+      }
+    },
+    {
+      "id": "5401e398-f117-409f-9fe7-e67cedf93abb",
+      "name": "Responder: detalle",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2464,
+        576
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.cuerpo) }}",
+        "options": {
+          "responseCode": "={{ $json.codigo }}"
+        }
+      }
+    },
+    {
+      "id": "21ecae3f-9ba9-4db5-aa25-83fe0142721b",
+      "name": "Leer solicitud a cambiar",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        864
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.id || \"-\" }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0976083f-9dd8-412c-ae3d-94a647ff88c4",
+      "name": "Calcular cambios",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        864
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ESTADOS = ['Nuevo', 'Contactado', 'En seguimiento', 'Cerrado'];\nconst p = $('Validar sesión').first().json;\nconst r = $input.first().json || {};\nconst fallo = (codigo, error) => [{ json: { listo: false, codigo, cuerpo: { ok: false, error } } }];\nif (p.estado && !ESTADOS.includes(p.estado)) return fallo(422, 'Estado no válido.');\nif (p.nota.length > 2000) return fallo(422, 'La nota admite hasta 2000 caracteres.');\nif (!r.id) return fallo(404, 'No encontramos esa solicitud.');\nconst ahora = new Date().toISOString();\nconst filas = [];\nconst nuevoEstado = p.estado && p.estado !== r.estado ? p.estado : r.estado;\nif (nuevoEstado !== r.estado) filas.push({ fecha: ahora, solicitud_id: String(r.id), campo: 'estado', antes: r.estado, despues: nuevoEstado, quien: p.admin });\nif (p.nota) filas.push({ fecha: ahora, solicitud_id: String(r.id), campo: 'nota', antes: '', despues: p.nota, quien: p.admin });\nif (!filas.length) return fallo(422, 'No hay cambios: elige otro estado o escribe una nota.');\nreturn [{ json: { listo: true, id: String(r.id), estado: nuevoEstado, actualizado: ahora, filas } }];"
+      }
+    },
+    {
+      "id": "e798d197-8385-4aa7-8bbe-74d1eb355e82",
+      "name": "¿Cambios válidos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        864
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.listo }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "fbb5a4b9-2b2d-443c-9424-2a81ee0a6e4c",
+      "name": "Responder: cambio rechazado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2464,
+        960
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.cuerpo) }}",
+        "options": {
+          "responseCode": "={{ $json.codigo }}"
+        }
+      }
+    },
+    {
+      "id": "c12f6f1f-83d1-4746-bf4e-2ea2347c33d2",
+      "name": "Actualizar estado",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2464,
+        768
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "estado": "={{ $json.estado }}",
+            "actualizado": "={{ $json.actualizado }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "71d0f60c-d342-4a6c-804a-eeb5058cfdbf",
+      "name": "Responder 500: cambio no guardado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3136,
+        960
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"No se guardaron los cambios. Intenta de nuevo.\" }",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "id": "c63e964e-9f60-4193-bb2f-666886c20900",
+      "name": "Filas de historial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        768
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $('Calcular cambios').first().json.filas.map((f) => ({ json: f }));"
+      }
+    },
+    {
+      "id": "5ddbf698-7f9d-4a45-b428-a362a44f257b",
+      "name": "Guardar historial",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2912,
+        768
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Historial"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha": "={{ $json.fecha }}",
+            "solicitud_id": "={{ $json.solicitud_id }}",
+            "campo": "={{ $json.campo }}",
+            "antes": "={{ $json.antes }}",
+            "despues": "={{ $json.despues }}",
+            "quien": "={{ $json.quien }}"
+          },
+          "schema": [
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "solicitud_id",
+              "displayName": "solicitud_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campo",
+              "displayName": "campo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "antes",
+              "displayName": "antes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "despues",
+              "displayName": "despues",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quien",
+              "displayName": "quien",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "2f53e2ca-1041-4a96-b13d-0ccf0b60a63e",
+      "name": "Responder: cambios guardados",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3136,
+        576
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": true }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "7bd8868e-6eb0-4900-8ee8-c52d01e25ed4",
+      "name": "Responder 500: historial no guardado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3136,
+        768
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"El estado se guardó, pero el historial no. Vuelve a abrir la solicitud y revisa.\" }",
+        "options": {
+          "responseCode": 500
+        }
+      }
+    },
+    {
+      "id": "2d2b485b-b7c4-401e-906a-ebe2da3e045e",
+      "name": "Cerrar sesión",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        1056
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REEMPLAZAR_CON_ID_DE_LA_HOJA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sesiones"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "token_hash": "={{ $json.token_hash }}",
+            "expira": "1970-01-01T00:00:00.000Z"
+          },
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expira",
+              "displayName": "expira",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [
+            "token_hash"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "21bf8b1b-d664-46e9-82b4-47dfcb74605b",
+      "name": "Responder: sesión cerrada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2016,
+        1056
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": true }",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Panel: petición": {
+      "main": [
+        [
+          {
+            "node": "Leer petición",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer petición": {
+      "main": [
+        [
+          {
+            "node": "¿Es inicio de sesión?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es inicio de sesión?": {
+      "main": [
+        [
+          {
+            "node": "Buscar administrador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hash del token recibido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar administrador": {
+      "main": [
+        [
+          {
+            "node": "Preparar verificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar verificación": {
+      "main": [
+        [
+          {
+            "node": "Hash de la clave",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash de la clave": {
+      "main": [
+        [
+          {
+            "node": "¿Credenciales correctas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Credenciales correctas?": {
+      "main": [
+        [
+          {
+            "node": "Generar token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 401: credenciales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar token": {
+      "main": [
+        [
+          {
+            "node": "Hash del token nuevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash del token nuevo": {
+      "main": [
+        [
+          {
+            "node": "Guardar sesión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar sesión": {
+      "main": [
+        [
+          {
+            "node": "Responder: sesión iniciada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 500: sesión no guardada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash del token recibido": {
+      "main": [
+        [
+          {
+            "node": "Buscar sesión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar sesión": {
+      "main": [
+        [
+          {
+            "node": "Validar sesión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar sesión": {
+      "main": [
+        [
+          {
+            "node": "¿Sesión vigente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Sesión vigente?": {
+      "main": [
+        [
+          {
+            "node": "Según la acción",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 401: sin sesión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Según la acción": {
+      "main": [
+        [
+          {
+            "node": "Leer solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Leer solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Leer solicitud a cambiar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cerrar sesión",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 400: acción desconocida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Armar lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar lista": {
+      "main": [
+        [
+          {
+            "node": "Responder: lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer solicitud": {
+      "main": [
+        [
+          {
+            "node": "Leer historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer historial": {
+      "main": [
+        [
+          {
+            "node": "Armar detalle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar detalle": {
+      "main": [
+        [
+          {
+            "node": "Responder: detalle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer solicitud a cambiar": {
+      "main": [
+        [
+          {
+            "node": "Calcular cambios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular cambios": {
+      "main": [
+        [
+          {
+            "node": "¿Cambios válidos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Cambios válidos?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar estado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder: cambio rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar estado": {
+      "main": [
+        [
+          {
+            "node": "Filas de historial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 500: cambio no guardado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filas de historial": {
+      "main": [
+        [
+          {
+            "node": "Guardar historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar historial": {
+      "main": [
+        [
+          {
+            "node": "Responder: cambios guardados",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 500: historial no guardado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cerrar sesión": {
+      "main": [
+        [
+          {
+            "node": "Responder: sesión cerrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  },
+  "meta": {
+    "description": "Inicio de sesión, lista, detalle, cambios de estado, notas e historial del panel sobre Google Sheets."
+  }
+}

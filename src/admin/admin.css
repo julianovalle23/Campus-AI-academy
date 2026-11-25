@@ -1,0 +1,295 @@
+/* Panel de solicitudes: mismos tokens y componentes del landing */
+
+.admin-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--gutter);
+  border-bottom: var(--border-w) solid var(--white-06);
+}
+
+.admin-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.admin-header__title {
+  padding-left: var(--space-4);
+  border-left: var(--border-w) solid var(--border-strong);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+.admin-header__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--fs-sm);
+}
+
+.admin-header__user[hidden],
+[data-view][hidden] {
+  display: none;
+}
+
+.admin-main {
+  padding: var(--space-6) var(--gutter) var(--space-8);
+  max-width: var(--container-wide);
+  margin-inline: auto;
+}
+
+.admin-loading,
+.admin-muted,
+.admin-empty {
+  color: var(--text-muted);
+}
+
+/* --- Login --- */
+.admin-login {
+  max-width: 26rem;
+  margin: var(--space-7) auto;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-login__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+}
+
+.admin-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-form .btn {
+  justify-self: start;
+}
+
+.admin-msg {
+  color: var(--accent);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.admin-msg:empty {
+  display: none;
+}
+
+/* --- App --- */
+.admin-app {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 72rem) {
+  .admin-app {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: start;
+  }
+
+  .admin-detail {
+    position: sticky;
+    top: var(--space-4);
+    max-height: calc(100vh - var(--space-6));
+    overflow: auto;
+  }
+}
+
+.admin-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.admin-list__title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-title);
+}
+
+.admin-filters {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 40rem) {
+  .admin-filters {
+    grid-template-columns: 14rem 1fr;
+  }
+}
+
+.admin-count {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: var(--border-w) solid var(--border);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: var(--border-w) solid var(--white-06);
+}
+
+.admin-table th {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.admin-table tbody tr[aria-current] {
+  background: var(--soft-violet-10);
+}
+
+.admin-row-link {
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+.admin-row-link:hover {
+  color: var(--accent);
+}
+
+.admin-sub {
+  display: block;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* Estados: texto siempre visible; el color solo refuerza */
+.badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  border: var(--border-w) solid var(--border-strong);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+.badge[data-status='Nuevo'] {
+  background: var(--soft-violet);
+  border-color: var(--soft-violet);
+  color: var(--black);
+}
+
+.badge[data-status='Contactado'] {
+  background: var(--evox-purple);
+  border-color: var(--evox-purple);
+  color: var(--white);
+}
+
+.badge[data-status='En seguimiento'] {
+  border-color: var(--soft-violet);
+}
+
+.badge[data-status='Cerrado'] {
+  color: var(--text-muted);
+}
+
+.badge--notify[data-notify='fallido'],
+.badge--notify[data-notify='sin configurar'] {
+  border-style: dashed;
+  color: var(--accent);
+}
+
+/* --- Detalle --- */
+.admin-detail {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.admin-detail__kicker {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.admin-detail__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+}
+
+.admin-detail__section {
+  margin-bottom: var(--space-3);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+}
+
+.admin-data {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.admin-data div {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: var(--space-3);
+}
+
+.admin-data dt {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.admin-data dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.admin-data a {
+  color: var(--accent);
+}
+
+.admin-update {
+  padding-top: var(--space-4);
+  border-top: var(--border-w) solid var(--white-06);
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.admin-notes {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.admin-note {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--white-06);
+  white-space: pre-wrap;
+}
+
+.admin-history td:nth-child(3) {
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel de solicitudes · Campuslands AI Academy</title>
+    <meta name="theme-color" content="#050507" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png" />
+  </head>
+  <body class="admin">
+    <a class="skip-link" href="#panel">Saltar al contenido</a>
+    <header class="admin-header">
+      <div class="admin-header__brand">
+        <picture>
+          <source type="image/webp" srcset="logo/logo-horizontal-blanca-180.webp 180w, logo/logo-horizontal-blanca-360.webp 360w" sizes="140px" />
+          <img src="logo/logo-horizontal-blanca-180.png" width="140" height="32" alt="Campuslands AI Academy" />
+        </picture>
+        <span class="admin-header__title">Panel de solicitudes</span>
+      </div>
+      <div class="admin-header__user" data-user hidden>
+        <span data-user-name></span>
+        <button class="btn btn--ghost btn--sm" type="button" data-logout>Cerrar sesión</button>
+      </div>
+    </header>
+
+    <main id="panel" class="admin-main" tabindex="-1">
+      <p class="admin-loading" data-view="loading">Cargando…</p>
+
+      <!-- Inicio de sesión: es lo único visible sin una sesión válida. Los datos
+           solo llegan desde la API después de autenticarse. -->
+      <section class="admin-login card" data-view="login" aria-labelledby="login-title" hidden>
+        <h1 id="login-title" class="admin-login__title">Iniciar sesión</h1>
+        <p class="admin-login__text">Acceso solo para el equipo administrador de AI Academy.</p>
+        <form class="admin-form" data-login-form novalidate>
+          <div class="lead-field">
+            <label class="lead-field__label" for="login-user">Usuario</label>
+            <input class="lead-input" id="login-user" name="username" autocomplete="username" required />
+          </div>
+          <div class="lead-field">
+            <label class="lead-field__label" for="login-pass">Contraseña</label>
+            <input class="lead-input" id="login-pass" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <p class="admin-msg" data-login-msg role="alert"></p>
+          <button class="btn btn--primary" type="submit" data-login-submit>Entrar</button>
+        </form>
+      </section>
+
+      <div class="admin-app" data-view="app" hidden>
+        <section class="admin-list" aria-labelledby="list-title">
+          <div class="admin-list__head">
+            <h1 id="list-title" class="admin-list__title">Solicitudes</h1>
+            <button class="btn btn--ghost btn--sm" type="button" data-refresh>Actualizar</button>
+          </div>
+          <form class="admin-filters" data-filters role="search">
+            <div class="lead-field">
+              <label class="lead-field__label" for="f-estado">Estado</label>
+              <select class="lead-input lead-input--select" id="f-estado" name="estado">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="lead-field">
+              <label class="lead-field__label" for="f-q">Buscar</label>
+              <input class="lead-input" id="f-q" name="q" type="search" placeholder="Nombre, correo o teléfono" />
+            </div>
+          </form>
+          <p class="admin-count" data-count role="status" aria-live="polite"></p>
+          <div class="admin-table-wrap" tabindex="0" role="region" aria-labelledby="list-title">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Recibida</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Programa</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Aviso</th>
+                </tr>
+              </thead>
+              <tbody data-rows></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-detail card" data-detail aria-labelledby="detail-title" aria-live="polite">
+          <p class="admin-empty">Elige una solicitud para ver sus datos, notas e historial.</p>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/admin/main.js"></script>
+  </body>
+</html>

@@ -14,14 +14,19 @@ import './styles/sections/constellation.css';
 import './styles/sections/plans.css';
 import './styles/sections/recommender.css';
 import './styles/sections/max.css';
+import './styles/sections/lead.css';
 import './styles/sections/closing.css';
 
 import { initNav } from './modules/nav.js';
 import { init as initHero } from './modules/hero.js';
+import { init as initLeadForm } from './modules/lead-form.js';
 import { whenNear, whenIdle } from './utils/lazy.js';
 
 initNav();
 initHero(document.querySelector('.hero'));
+// El formulario se inicia de inmediato: si se enviara antes de cargar su JS,
+// el navegador haría un envío nativo sin validar.
+initLeadForm();
 
 whenIdle(() =>
   import('./modules/journey.js')
